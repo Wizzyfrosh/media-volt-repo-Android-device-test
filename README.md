@@ -27,6 +27,10 @@ pnpm --filter @mediavault/mobile check:store-bundle # proves store build has no 
 
 ## Status
 
-Phase 1a done: monorepo, both flavors, theme and UI kit, navigation shell with all screens.
-Next: Phase 1b (SQLite, file service). See `docs/ROADMAP.md`.
-Screens show sample data in development builds only (`FEATURES.demoData`).
+- Phase 1a done: monorepo, both flavors, theme and UI kit, navigation shell with all screens.
+- Phase 1b done: SQLite with migrations, repositories, and the file service (see `docs/STORAGE.md`).
+  Settings > Developer tools (development builds) lets you create folders and files and check they survive a restart.
+- Next: Phase 1c (download engine). See `docs/ROADMAP.md`.
+
+Tab screens still show sample data in development builds (`FEATURES.demoData`). They switch to the real
+library in Phase 1d.

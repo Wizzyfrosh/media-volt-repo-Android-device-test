@@ -134,3 +134,14 @@ erDiagram
 Additional tables: `app_releases` (version, platform, apk_url, sha256, mandatory, changelog), `platform_health` (platform, status, success_rate, checked_at), `reports` (type, url_hash, note, status), `takedown_requests`, `rate_limit_overrides`.
 
 Retention: `resolve_logs` keep 30 days, store only the source domain, never the full URL.
+
+## 3. Differences in the shipped migration 001
+
+The first migration (`apps/mobile/src/db/migrations.ts`) follows the schema above with these changes:
+
+- Foreign keys are on. `folders.parent_id` cascades, `files.folder_id` and `downloads.file_id` are set to NULL when the parent row is deleted.
+- Extra indexes: `idx_folders_parent`, `idx_files_folder (folder_id, deleted_at)`, `idx_files_name (name COLLATE NOCASE)`, `idx_files_deleted`.
+- `schema_version` also stores the migration `name`.
+- `files.path` is `<libraryDir>/<id>.<ext>`: the file name on disk is the id, never the display name (see STORAGE.md).
+- Name uniqueness (per folder, case-insensitive) is enforced by `FileService`, not by a database constraint, so a move or restore can rename instead of failing.
+- Migrations are append-only. A database newer than the app refuses to open.

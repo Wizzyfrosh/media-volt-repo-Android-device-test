@@ -57,10 +57,26 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       predictiveBackGestureEnabled: false,
       // Permissions are added per feature, in the phase that needs them.
       permissions: [],
+      // The media library plugin adds broad read permissions we never use.
+      // We only save files out to the gallery, which needs no read access.
+      blockedPermissions: [
+        'android.permission.READ_EXTERNAL_STORAGE',
+        'android.permission.READ_MEDIA_VISUAL_USER_SELECTED',
+      ],
     },
     plugins: [
       'expo-router',
       'expo-sqlite',
+      [
+        'expo-media-library',
+        {
+          // Save-only: MediaVault never reads the user's photo library.
+          photosPermission: false,
+          savePhotosPermission:
+            'MediaVault saves videos, images and audio you choose to your photo library.',
+          granularPermissions: [],
+        },
+      ],
       [
         'expo-splash-screen',
         {

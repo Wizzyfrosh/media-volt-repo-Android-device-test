@@ -1,6 +1,6 @@
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
-import { Clipboard, HardDrive, Info, RefreshCw, Sparkles, Wifi } from 'lucide-react-native';
+import { Clipboard, HardDrive, Info, RefreshCw, Sparkles, Wifi, Wrench } from 'lucide-react-native';
 import { StyleSheet, Switch, View } from 'react-native';
 import {
   Button,
@@ -123,6 +123,16 @@ export default function SettingsScreen() {
             />
           ) : null}
           <ListRow icon={Info} tint={categoryColors.other} title="Version" subtitle={version} />
+          {FEATURES.demoData ? (
+            <ListRow
+              icon={Wrench}
+              tint={categoryColors.images}
+              title="Developer tools"
+              subtitle="Database and file checks (development builds only)"
+              chevron
+              onPress={() => router.push('/debug')}
+            />
+          ) : null}
         </Card>
       </View>
     </ScreenContainer>

@@ -1,11 +1,16 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { ServicesProvider } from '@/services/ServicesProvider';
 import { useAppStore } from '@/stores/app-store';
 import { ThemeProvider, useTheme } from '@/theme';
+
+// Keep the splash screen up until the database is open (ServicesProvider hides it).
+void SplashScreen.preventAutoHideAsync();
 
 function RootStack() {
   const { colors, isDark } = useTheme();
@@ -25,6 +30,7 @@ function RootStack() {
           <Stack.Screen name="browser" />
           <Stack.Screen name="scanner" />
           <Stack.Screen name="storage" />
+          <Stack.Screen name="debug" />
           <Stack.Screen name="player/[fileId]" />
           <Stack.Screen name="viewer/[fileId]" />
           <Stack.Screen name="folder/[folderId]" />
@@ -52,7 +58,9 @@ export default function RootLayout() {
     <GestureHandlerRootView style={styles.flex}>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <RootStack />
+          <ServicesProvider>
+            <RootStack />
+          </ServicesProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>

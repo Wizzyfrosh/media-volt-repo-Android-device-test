@@ -35,6 +35,8 @@ Estimated total: about 5 to 6 months solo, 3 to 4 months with 2 to 3 people. Tre
 
 ### Phase 1: Core app (about 7 weeks)
 
+Status: 1a (foundation) and 1b (database and file service) are done. Next: 1c (download engine).
+
 - Navigation shell, theme, onboarding
 - SQLite setup and migrations
 - Download engine: queue, background, pause/resume, persistence

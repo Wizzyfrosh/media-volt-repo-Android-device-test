@@ -10,5 +10,5 @@ module.exports = {
     '^@extractors-impl$': resolveExtractorsImpl(variant, __dirname),
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  testPathIgnorePatterns: ['/node_modules/', '/.expo/'],
+  testPathIgnorePatterns: ['/node_modules/', '/.expo/', '/__tests__/helpers/'],
 };
