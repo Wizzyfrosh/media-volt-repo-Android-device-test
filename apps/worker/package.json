@@ -1,0 +1,10 @@
+{
+  "name": "@mediavault/worker",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "lint": "echo \"no lint yet (worker)\"",
+    "typecheck": "echo \"no typecheck yet (worker)\"",
+    "test": "echo \"no tests yet (worker)\""
+  }
+}

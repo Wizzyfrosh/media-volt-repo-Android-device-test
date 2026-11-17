@@ -1,0 +1,10 @@
+{
+  "name": "@mediavault/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "lint": "echo \"no lint yet (api)\"",
+    "typecheck": "echo \"no typecheck yet (api)\"",
+    "test": "echo \"no tests yet (api)\""
+  }
+}

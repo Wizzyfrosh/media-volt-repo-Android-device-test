@@ -1,0 +1,11 @@
+{
+  "name": "@mediavault/shared",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "lint": "echo \"no lint yet (shared)\"",
+    "typecheck": "echo \"no typecheck yet (shared)\"",
+    "test": "echo \"no tests yet (shared)\""
+  }
+}

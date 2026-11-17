@@ -1,0 +1,32 @@
+# MediaVault (working name)
+
+Premium media downloader with a built-in file and document manager and an encrypted vault.
+Android and iOS. Two flavors from one codebase: `store` and `direct` (APK).
+
+Start with `docs/PRD.md` and `docs/ARCHITECTURE.md`. Agents: read `AGENTS.md` first.
+
+## Quick start
+
+```bash
+corepack enable            # or: npm i -g pnpm
+pnpm install
+pnpm --filter @mediavault/mobile start:store     # store flavor
+pnpm --filter @mediavault/mobile start:direct    # direct flavor
+```
+
+Needs a development build (not Expo Go): `eas build --profile dev-store --platform android`
+or `pnpm --filter @mediavault/mobile android` with Android Studio installed.
+
+## Checks
+
+```bash
+pnpm lint && pnpm typecheck && pnpm test
+pnpm --filter @mediavault/mobile test:variants      # tests in both flavors
+pnpm --filter @mediavault/mobile check:store-bundle # proves store build has no extractor code
+```
+
+## Status
+
+Phase 1a done: monorepo, both flavors, theme and UI kit, navigation shell with all screens.
+Next: Phase 1b (SQLite, file service). See `docs/ROADMAP.md`.
+Screens show sample data in development builds only (`FEATURES.demoData`).

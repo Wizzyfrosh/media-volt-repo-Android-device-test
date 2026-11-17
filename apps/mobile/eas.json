@@ -1,0 +1,43 @@
+{
+  "cli": { "version": ">= 16.0.0", "appVersionSource": "remote" },
+  "build": {
+    "base": {
+      "node": "22.12.0"
+    },
+    "dev-store": {
+      "extends": "base",
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": { "APP_VARIANT": "store" },
+      "android": { "buildType": "apk" }
+    },
+    "dev-direct": {
+      "extends": "base",
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": { "APP_VARIANT": "direct" },
+      "android": { "buildType": "apk" }
+    },
+    "store-android": {
+      "extends": "base",
+      "autoIncrement": true,
+      "env": { "APP_VARIANT": "store" },
+      "android": { "buildType": "app-bundle" }
+    },
+    "store-ios": {
+      "extends": "base",
+      "autoIncrement": true,
+      "env": { "APP_VARIANT": "store" }
+    },
+    "direct-android": {
+      "extends": "base",
+      "autoIncrement": true,
+      "env": { "APP_VARIANT": "direct" },
+      "android": { "buildType": "apk" }
+    }
+  },
+  "submit": {
+    "store-android": {},
+    "store-ios": {}
+  }
+}
