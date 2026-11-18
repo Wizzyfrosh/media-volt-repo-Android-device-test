@@ -8,6 +8,10 @@ interface DownloadRow {
   source_url: string;
   direct_url: string | null;
   title: string | null;
+  target_name: string | null;
+  folder_id: string | null;
+  mime: string | null;
+  source: string | null;
   status: DownloadStatus;
   bytes_total: number | null;
   bytes_done: number;
@@ -23,6 +27,10 @@ const toDownload = (r: DownloadRow): DownloadRecord => ({
   sourceUrl: r.source_url,
   directUrl: r.direct_url,
   title: r.title,
+  targetName: r.target_name,
+  folderId: r.folder_id,
+  mime: r.mime,
+  source: r.source,
   status: r.status,
   bytesTotal: r.bytes_total,
   bytesDone: r.bytes_done,
@@ -36,6 +44,7 @@ export interface DownloadPatch {
   fileId?: string | null;
   directUrl?: string | null;
   title?: string | null;
+  targetName?: string | null;
   status?: DownloadStatus;
   bytesTotal?: number | null;
   bytesDone?: number;
@@ -55,6 +64,11 @@ export class DownloadsRepo {
     sourceUrl: string;
     directUrl?: string | null;
     title?: string | null;
+    targetName?: string | null;
+    folderId?: string | null;
+    mime?: string | null;
+    source?: string | null;
+    bytesTotal?: number | null;
     status?: DownloadStatus;
   }): Promise<DownloadRecord> {
     const t = this.now();
@@ -64,8 +78,12 @@ export class DownloadsRepo {
       sourceUrl: input.sourceUrl,
       directUrl: input.directUrl ?? null,
       title: input.title ?? null,
+      targetName: input.targetName ?? null,
+      folderId: input.folderId ?? null,
+      mime: input.mime ?? null,
+      source: input.source ?? null,
       status: input.status ?? 'queued',
-      bytesTotal: null,
+      bytesTotal: input.bytesTotal ?? null,
       bytesDone: 0,
       retries: 0,
       errorCode: null,
@@ -73,10 +91,23 @@ export class DownloadsRepo {
       updatedAt: t,
     };
     await this.db.runAsync(
-      `INSERT INTO downloads (id, file_id, source_url, direct_url, title, status, bytes_total, bytes_done,
-                              retries, error_code, created_at, updated_at)
-       VALUES (?, NULL, ?, ?, ?, ?, NULL, 0, 0, NULL, ?, ?)`,
-      [rec.id, rec.sourceUrl, rec.directUrl, rec.title, rec.status, t, t],
+      `INSERT INTO downloads (id, file_id, source_url, direct_url, title, target_name, folder_id, mime, source,
+                              status, bytes_total, bytes_done, retries, error_code, created_at, updated_at)
+       VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, NULL, ?, ?)`,
+      [
+        rec.id,
+        rec.sourceUrl,
+        rec.directUrl,
+        rec.title,
+        rec.targetName,
+        rec.folderId,
+        rec.mime,
+        rec.source,
+        rec.status,
+        rec.bytesTotal,
+        t,
+        t,
+      ],
     );
     return rec;
   }
@@ -98,6 +129,7 @@ export class DownloadsRepo {
     if (patch.fileId !== undefined) add('file_id', patch.fileId);
     if (patch.directUrl !== undefined) add('direct_url', patch.directUrl);
     if (patch.title !== undefined) add('title', patch.title);
+    if (patch.targetName !== undefined) add('target_name', patch.targetName);
     if (patch.status !== undefined) add('status', patch.status);
     if (patch.bytesTotal !== undefined) add('bytes_total', patch.bytesTotal);
     if (patch.bytesDone !== undefined) add('bytes_done', patch.bytesDone);

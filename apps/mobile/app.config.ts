@@ -56,7 +56,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       },
       predictiveBackGestureEnabled: false,
       // Permissions are added per feature, in the phase that needs them.
-      permissions: [],
+      // Download notifications (progress and Cancel) on Android 13 and newer.
+      permissions: ['android.permission.POST_NOTIFICATIONS'],
       // The media library plugin adds broad read permissions we never use.
       // We only save files out to the gallery, which needs no read access.
       blockedPermissions: [
@@ -67,6 +68,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     plugins: [
       'expo-router',
       'expo-sqlite',
+      '@kesha-antonov/react-native-background-downloader',
       [
         'expo-media-library',
         {

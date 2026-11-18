@@ -5,12 +5,14 @@ import type { FileSystemPort } from '../ports';
 export function createExpoFileSystem(): FileSystemPort {
   const library = new Directory(Paths.document, 'library');
   const thumbs = new Directory(Paths.document, 'thumbnails');
+  const partial = new Directory(Paths.document, 'downloads');
 
   const isDirectory = (path: string) => Paths.info(path).isDirectory === true;
 
   return {
     libraryDir: () => library.uri,
     thumbnailDir: () => thumbs.uri,
+    downloadsDir: () => partial.uri,
 
     async ensureDir(path) {
       const dir = new Directory(path);

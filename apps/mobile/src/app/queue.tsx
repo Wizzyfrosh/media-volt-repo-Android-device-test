@@ -1,18 +1,12 @@
 import { useRouter } from 'expo-router';
 import { CircleCheck, Download, TriangleAlert } from 'lucide-react-native';
-import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import {
-  Card,
-  EmptyState,
-  MediaThumb,
-  ProgressBar,
-  ScreenContainer,
-  Segmented,
-  Text,
-} from '@/components/ui';
-import { useDemoData } from '@/hooks/use-demo-data';
-import type { DemoDownload } from '@/mocks/demo';
+import { useMemo, useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { DownloadRow, type DownloadActions } from '@/components/DownloadRow';
+import { Card, EmptyState, ScreenContainer, Segmented, Text } from '@/components/ui';
+import { STATUS_GROUP } from '@/features/downloads/state-machine';
+import { useDownloads } from '@/hooks/use-downloads';
+import { useServices } from '@/services/ServicesProvider';
 import { spacing } from '@/theme';
 
 type Tab = 'active' | 'completed' | 'failed';
@@ -36,35 +30,76 @@ const EMPTY_COPY = {
   },
   failed: {
     icon: TriangleAlert,
-    title: 'No failed downloads',
+    title: 'Nothing failed',
     description: 'If a download stops, you can retry it from here.',
   },
 } as const;
 
 export default function QueueScreen() {
   const router = useRouter();
-  const demo = useDemoData();
+  const { downloadEngine: engine, files } = useServices();
+  const downloads = useDownloads();
   const [tab, setTab] = useState<Tab>('active');
-  const items = demo.downloads.filter((d: DemoDownload) => d.status === tab);
+
+  const counts = useMemo(
+    () => ({
+      active: downloads.filter((d) => (STATUS_GROUP.active as readonly string[]).includes(d.status))
+        .length,
+      completed: downloads.filter((d) => d.status === 'completed').length,
+      failed: downloads.filter((d) => (STATUS_GROUP.failed as readonly string[]).includes(d.status))
+        .length,
+    }),
+    [downloads],
+  );
+  const items = downloads.filter((d) =>
+    (STATUS_GROUP[tab] as readonly string[]).includes(d.status),
+  );
   const empty = EMPTY_COPY[tab];
+
+  const actions: DownloadActions = {
+    onPause: (id) => void engine.pause(id),
+    onResume: (id) => void engine.resume(id),
+    onCancel: (id) => void engine.cancel(id),
+    onRetry: (id) => void engine.retry(id),
+    onRemove: (id) => void engine.remove(id),
+    onOpen: (d) => {
+      if (!d.fileId) return;
+      void files.getById(d.fileId).then((f) => {
+        if (!f) return;
+        const audioOrVideo = f.category === 'videos' || f.category === 'audio';
+        router.push({
+          pathname: audioOrVideo ? '/player/[fileId]' : '/viewer/[fileId]',
+          params: { fileId: f.id },
+        });
+      });
+    },
+  };
+
+  const options = TABS.map((t) => ({
+    ...t,
+    label: counts[t.value] > 0 ? `${t.label} (${counts[t.value]})` : t.label,
+  }));
 
   return (
     <ScreenContainer title="Downloads" onBack={() => router.back()}>
-      <Segmented options={TABS} value={tab} onChange={setTab} />
+      <Segmented options={options} value={tab} onChange={setTab} />
+      {tab !== 'active' && items.length > 0 ? (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => void engine.clearFinished(STATUS_GROUP[tab])}
+          style={styles.clear}
+          hitSlop={8}
+        >
+          <Text variant="label" tone="accent">
+            Clear list
+          </Text>
+        </Pressable>
+      ) : null}
       <View style={styles.list}>
         {items.length > 0 ? (
           items.map((d) => (
-            <Card key={d.id} style={styles.row}>
-              <MediaThumb tint={d.tint} duration={d.duration} width={76} height={56} />
-              <View style={styles.text}>
-                <Text variant="bodyLarge" numberOfLines={1}>
-                  {d.title}
-                </Text>
-                {d.status === 'active' ? <ProgressBar value={d.progress} /> : null}
-                <Text variant="caption" tone={d.status === 'failed' ? 'danger' : 'secondary'}>
-                  {d.sizeLabel}
-                </Text>
-              </View>
+            <Card key={d.id}>
+              <DownloadRow d={d} actions={actions} />
             </Card>
           ))
         ) : (
@@ -76,7 +111,6 @@ export default function QueueScreen() {
 }
 
 const styles = StyleSheet.create({
-  list: { marginTop: spacing.xl, gap: spacing.md },
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  text: { flex: 1, gap: 6 },
+  list: { marginTop: spacing.lg, gap: spacing.md },
+  clear: { alignSelf: 'flex-end', marginTop: spacing.md },
 });

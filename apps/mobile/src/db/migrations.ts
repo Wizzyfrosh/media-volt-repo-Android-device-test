@@ -75,6 +75,16 @@ export const MIGRATIONS: readonly Migration[] = [
       );
     `,
   },
+  {
+    version: 2,
+    name: 'download target details',
+    sql: `
+      ALTER TABLE downloads ADD COLUMN target_name TEXT;
+      ALTER TABLE downloads ADD COLUMN folder_id TEXT;
+      ALTER TABLE downloads ADD COLUMN mime TEXT;
+      ALTER TABLE downloads ADD COLUMN source TEXT;
+    `,
+  },
 ];
 
 /** Connection settings applied every time the database is opened. */

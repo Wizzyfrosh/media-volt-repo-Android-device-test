@@ -11,17 +11,6 @@ export interface DemoSource {
   total: number;
 }
 
-export interface DemoDownload {
-  id: string;
-  title: string;
-  source: string;
-  sizeLabel: string;
-  progress: number;
-  status: 'active' | 'completed' | 'failed';
-  duration?: string;
-  tint: string;
-}
-
 export interface DemoFolder {
   id: string;
   name: string;
@@ -37,7 +26,6 @@ export interface DemoDocument {
 export interface DemoData {
   sources: DemoSource[];
   categoryCounts: Record<CategoryKey, number>;
-  downloads: DemoDownload[];
   folders: DemoFolder[];
   documents: DemoDocument[];
   storage: { usedBytes: number; totalBytes: number; byCategory: Record<CategoryKey, number> };
@@ -55,58 +43,6 @@ export const DEMO: DemoData = {
     { id: 'snapchat', name: 'Snapchat', total: 7 },
   ],
   categoryCounts: { videos: 48, audio: 21, images: 134, documents: 37, archives: 6, other: 12 },
-  downloads: [
-    {
-      id: 'd1',
-      title: 'Rooftop sunset timelapse',
-      source: 'instagram',
-      sizeLabel: '5.2 of 8.4 MB',
-      progress: 0.62,
-      status: 'active',
-      duration: '0:48',
-      tint: '#E1306C',
-    },
-    {
-      id: 'd2',
-      title: 'Lecture 04: Computer networks',
-      source: 'web',
-      sizeLabel: '44 of 142 MB',
-      progress: 0.31,
-      status: 'active',
-      duration: '52:10',
-      tint: '#6C5CE7',
-    },
-    {
-      id: 'd3',
-      title: 'Street food tour',
-      source: 'tiktok',
-      sizeLabel: '12.7 MB',
-      progress: 1,
-      status: 'completed',
-      duration: '1:42',
-      tint: '#2BB5A8',
-    },
-    {
-      id: 'd4',
-      title: 'Podcast episode 12',
-      source: 'web',
-      sizeLabel: '38 MB',
-      progress: 1,
-      status: 'completed',
-      duration: '34:05',
-      tint: '#3DCB8B',
-    },
-    {
-      id: 'd5',
-      title: 'Short film trailer',
-      source: 'youtube',
-      sizeLabel: 'Link expired',
-      progress: 0.18,
-      status: 'failed',
-      duration: '2:31',
-      tint: '#F2677A',
-    },
-  ],
   folders: [
     { id: 'f1', name: 'Downloads', items: 13 },
     { id: 'f2', name: 'Instagram', items: 24 },
@@ -137,7 +73,6 @@ export const DEMO: DemoData = {
 export const EMPTY: DemoData = {
   sources: [],
   categoryCounts: { videos: 0, audio: 0, images: 0, documents: 0, archives: 0, other: 0 },
-  downloads: [],
   folders: [],
   documents: [],
   storage: {

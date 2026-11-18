@@ -97,6 +97,24 @@ export function extensionOf(name: string): string {
   return i > 0 && i < name.length - 1 ? name.slice(i + 1).toLowerCase() : '';
 }
 
+const PREFERRED_EXTENSION: Record<string, string> = {
+  'video/mp4': 'mp4',
+  'audio/mpeg': 'mp3',
+  'audio/mp4': 'm4a',
+  'image/jpeg': 'jpg',
+  'application/gzip': 'gz',
+  'text/plain': 'txt',
+};
+
+/** A sensible extension for a MIME type, or '' if unknown. */
+export function extensionFromMime(mime: string | null | undefined): string {
+  const clean = mime?.split(';')[0]?.trim().toLowerCase();
+  if (!clean) return '';
+  const preferred = PREFERRED_EXTENSION[clean];
+  if (preferred) return preferred;
+  return Object.entries(BY_EXTENSION).find(([, v]) => v.mime === clean)?.[0] ?? '';
+}
+
 export function mimeFromExtension(ext: string): string | null {
   return BY_EXTENSION[ext.toLowerCase()]?.mime ?? null;
 }

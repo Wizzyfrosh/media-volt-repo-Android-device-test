@@ -71,6 +71,13 @@ export interface DownloadRecord {
   sourceUrl: string;
   directUrl: string | null;
   title: string | null;
+  /** File name to save as, decided before the download starts. */
+  targetName: string | null;
+  /** Library folder to save into. Null = top level. */
+  folderId: string | null;
+  mime: string | null;
+  /** Where the link came from, for example "web". */
+  source: string | null;
   status: DownloadStatus;
   bytesTotal: number | null;
   bytesDone: number;

@@ -9,6 +9,8 @@ export interface FileSystemPort {
   libraryDir(): string;
   /** Folder for generated thumbnails. */
   thumbnailDir(): string;
+  /** Folder for unfinished downloads (<id>.part). Finished files are moved into the library. */
+  downloadsDir(): string;
   ensureDir(path: string): Promise<void>;
   exists(path: string): Promise<boolean>;
   sizeOf(path: string): Promise<number>;

@@ -1,0 +1,23 @@
+# Pastes a direct link, downloads it, and checks it lands in Completed.
+# Run against a release or preview build (not the development client), with internet access:
+#   maestro test apps/mobile/.maestro/download-direct-file.yaml
+# NOT YET RUN: Maestro needs an emulator or phone. Run it before trusting it.
+appId: com.wizzyfrosh.mediavault
+---
+- launchApp:
+    clearState: true
+- tapOn: "Skip"
+- tapOn: "Paste a video or file link"
+- inputText: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+- tapOn: "Preview link"
+- extendedWaitUntil:
+    visible: "File found"
+    timeout: 20000
+- assertVisible: "dummy.pdf"
+- tapOn: "Download"
+- assertVisible: "Downloads"
+- extendedWaitUntil:
+    visible: "Completed.*"
+    timeout: 60000
+- tapOn: "Completed.*"
+- assertVisible: "dummy.pdf"

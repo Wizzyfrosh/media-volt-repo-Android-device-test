@@ -20,6 +20,7 @@ export function createMemoryFs(): MemoryFs {
     seed: (path, size = 100, text) => void files.set(path, { size, text }),
     libraryDir: () => '/data/library/',
     thumbnailDir: () => '/data/thumbs/',
+    downloadsDir: () => '/data/downloads/',
     ensureDir: async (p) => void dirs.add(p),
     exists: async (p) => files.has(p) || dirs.has(p),
     sizeOf: async (p) => need(p).size,

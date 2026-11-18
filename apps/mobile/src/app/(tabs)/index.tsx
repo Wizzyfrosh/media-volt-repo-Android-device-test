@@ -19,8 +19,6 @@ import {
   EmptyState,
   IconButton,
   IconTile,
-  MediaThumb,
-  ProgressBar,
   ScreenContainer,
   SectionHeader,
   SourceBadge,
@@ -28,7 +26,10 @@ import {
 } from '@/components/ui';
 import { FEATURES } from '@/config/features';
 import { useClipboardLink } from '@/hooks/use-clipboard-link';
+import { DownloadRow } from '@/components/DownloadRow';
+import { STATUS_GROUP } from '@/features/downloads/state-machine';
 import { useDemoData } from '@/hooks/use-demo-data';
+import { useDownloads } from '@/hooks/use-downloads';
 import { useExtractors } from '@/hooks/use-extractors';
 import { useAppStore } from '@/stores/app-store';
 import { categoryColors, radius, spacing, useTheme } from '@/theme';
@@ -46,8 +47,11 @@ export default function HomeScreen() {
   const [value, setValue] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  const active = demo.downloads.filter((d) => d.status === 'active');
-  const recent = demo.downloads.filter((d) => d.status === 'completed');
+  const downloads = useDownloads();
+  const active = downloads.filter((d) =>
+    (STATUS_GROUP.active as readonly string[]).includes(d.status),
+  );
+  const recent = downloads.filter((d) => d.status === 'completed').slice(0, 5);
 
   const preview = (raw: string) => {
     const parsed = parseHttpUrl(raw);
@@ -211,18 +215,7 @@ export default function HomeScreen() {
           />
           <Card style={styles.listCard}>
             {active.map((d) => (
-              <View key={d.id} style={styles.dlRow}>
-                <MediaThumb tint={d.tint} duration={d.duration} width={76} height={56} />
-                <View style={styles.dlText}>
-                  <Text variant="bodyLarge" numberOfLines={1}>
-                    {d.title}
-                  </Text>
-                  <ProgressBar value={d.progress} />
-                  <Text variant="caption" tone="secondary">
-                    {d.sizeLabel}
-                  </Text>
-                </View>
-              </View>
+              <DownloadRow key={d.id} d={d} compact />
             ))}
           </Card>
         </View>
@@ -233,17 +226,7 @@ export default function HomeScreen() {
         {recent.length > 0 ? (
           <Card style={styles.listCard}>
             {recent.map((d) => (
-              <View key={d.id} style={styles.dlRow}>
-                <MediaThumb tint={d.tint} duration={d.duration} width={76} height={56} />
-                <View style={styles.dlText}>
-                  <Text variant="bodyLarge" numberOfLines={1}>
-                    {d.title}
-                  </Text>
-                  <Text variant="caption" tone="secondary">
-                    {d.sizeLabel}
-                  </Text>
-                </View>
-              </View>
+              <DownloadRow key={d.id} d={d} compact />
             ))}
           </Card>
         ) : (
@@ -278,6 +261,4 @@ const styles = StyleSheet.create({
   sourceName: { marginTop: spacing.sm },
   tileRow: { flexDirection: 'row', flexWrap: 'wrap' },
   listCard: { gap: spacing.lg },
-  dlRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  dlText: { flex: 1, gap: 6 },
 });

@@ -16,3 +16,14 @@ export function formatDuration(totalSeconds: number): string {
   const pad = (n: number) => String(n).padStart(2, '0');
   return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${m}:${pad(sec)}`;
 }
+
+export function formatSpeed(bytesPerSecond: number): string {
+  return `${formatBytes(bytesPerSecond)}/s`;
+}
+
+export function formatEta(seconds: number): string {
+  const s = Math.max(0, Math.round(seconds));
+  if (s < 60) return `${s} s left`;
+  if (s < 3600) return `${Math.round(s / 60)} min left`;
+  return `${Math.floor(s / 3600)} h ${Math.round((s % 3600) / 60)} min left`;
+}

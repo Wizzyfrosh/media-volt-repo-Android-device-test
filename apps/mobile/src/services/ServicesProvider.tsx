@@ -6,6 +6,11 @@ import { openAppDatabase } from '@/db/client';
 import { createRepositories, type Repositories } from '@/db/repositories';
 import type { Db } from '@/db/types';
 import { useTheme } from '@/theme';
+import { createBackgroundTransport } from '@/features/downloads/adapters/background-downloader';
+import { createExpoNetwork } from '@/features/downloads/adapters/expo-network';
+import { DownloadEngine } from '@/features/downloads/engine';
+import { concurrencyFor } from '@/features/downloads/limits';
+import { useAppStore } from '@/stores/app-store';
 import { createExpoFileSystem } from './adapters/expo-fs';
 import { createExpoMediaExport } from './adapters/expo-media-export';
 import { createExpoThumbnails } from './adapters/expo-thumbnails';
@@ -16,6 +21,7 @@ export interface Services extends Repositories {
   db: Db;
   fs: FileSystemPort;
   fileService: FileService;
+  downloadEngine: DownloadEngine;
 }
 
 type State =
@@ -35,7 +41,26 @@ async function boot(): Promise<Services> {
     thumbnails: createExpoThumbnails(fs),
     media: createExpoMediaExport(),
   });
-  return { db, fs, fileService, ...repos };
+
+  const downloadEngine = new DownloadEngine({
+    downloads: repos.downloads,
+    fileService,
+    fs,
+    transport: createBackgroundTransport(),
+    network: createExpoNetwork(),
+    getSettings: () => ({
+      wifiOnly: useAppStore.getState().wifiOnly,
+      // Pro (5 at once) arrives with billing in Phase 3b.
+      concurrencyLimit: concurrencyFor(false),
+    }),
+    onError: (e) => console.warn('[downloads]', e),
+  });
+  await downloadEngine.init();
+  useAppStore.subscribe((state, prev) => {
+    if (state.wifiOnly !== prev.wifiOnly) void downloadEngine.applySettings();
+  });
+
+  return { db, fs, fileService, downloadEngine, ...repos };
 }
 
 /** Opens the database, then renders the app. The splash screen stays up until this is ready. */
