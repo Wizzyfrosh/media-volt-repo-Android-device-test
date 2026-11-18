@@ -10,13 +10,30 @@ import {
   SectionHeader,
   Text,
 } from '@/components/ui';
-import { useDemoData } from '@/hooks/use-demo-data';
+import { useEffect, useState, useSyncExternalStore } from 'react';
+import type { FileRecord } from '@/db/types';
+import { useServices } from '@/services/ServicesProvider';
+import { formatBytes, formatShortDate } from '@/utils/format';
 import { categoryColors, radius, spacing, useTheme } from '@/theme';
 
 export default function DocumentsScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const demo = useDemoData();
+  const { files, fileService } = useServices();
+  const version = useSyncExternalStore(fileService.subscribe, fileService.getVersion);
+  const [recent, setRecent] = useState<FileRecord[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void files
+      .list({ category: 'documents', sort: 'date', direction: 'desc', limit: 5 })
+      .then((list) => {
+        if (!cancelled) setRecent(list);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [files, version]);
 
   return (
     <ScreenContainer tabScreen title="Documents">
@@ -82,15 +99,15 @@ export default function DocumentsScreen() {
 
       <View style={styles.section}>
         <SectionHeader title="Recent documents" />
-        {demo.documents.length > 0 ? (
+        {recent.length > 0 ? (
           <Card>
-            {demo.documents.map((d) => (
+            {recent.map((d) => (
               <ListRow
                 key={d.id}
                 icon={FileText}
                 tint={categoryColors.documents}
                 title={d.name}
-                subtitle={d.meta}
+                subtitle={`${formatBytes(d.sizeBytes)} · ${formatShortDate(d.createdAt)}`}
                 chevron
                 onPress={() =>
                   router.push({ pathname: '/viewer/[fileId]', params: { fileId: d.id } })

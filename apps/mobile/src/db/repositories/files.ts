@@ -275,6 +275,12 @@ export class FilesRepo {
     return out;
   }
 
+  /** Removes every row created by a given source. Used to clean up generated test data. */
+  async deleteBySource(source: string): Promise<number> {
+    const r = await this.db.runAsync('DELETE FROM files WHERE source = ?', [source]);
+    return r.changes;
+  }
+
   async count(trashed = false): Promise<number> {
     const r = await this.db.getFirstAsync<{ n: number }>(
       `SELECT COUNT(*) AS n FROM files WHERE deleted_at IS ${trashed ? 'NOT NULL' : 'NULL'}`,

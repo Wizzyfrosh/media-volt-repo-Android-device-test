@@ -28,3 +28,9 @@ jest.mock('lucide-react-native', () => {
     { get: (target, name) => (name in target ? target[name as keyof typeof target] : Icon) },
   );
 });
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+jest.mock(
+  'react-native-safe-area-context',
+  () => require('react-native-safe-area-context/jest/mock').default,
+);

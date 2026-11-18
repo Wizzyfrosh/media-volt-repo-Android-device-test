@@ -27,3 +27,30 @@ export function formatEta(seconds: number): string {
   if (s < 3600) return `${Math.round(s / 60)} min left`;
   return `${Math.floor(s / 3600)} h ${Math.round((s % 3600) / 60)} min left`;
 }
+
+const MONTHS = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+] as const;
+
+/** "Today", "Yesterday", "Nov 14", or "Nov 14, 2025" for another year. */
+export function formatShortDate(ms: number, now: number = Date.now()): string {
+  const d = new Date(ms);
+  const n = new Date(now);
+  const startOf = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const days = Math.round((startOf(n) - startOf(d)) / 86_400_000);
+  if (days === 0) return 'Today';
+  if (days === 1) return 'Yesterday';
+  const base = `${MONTHS[d.getMonth()]} ${d.getDate()}`;
+  return d.getFullYear() === n.getFullYear() ? base : `${base}, ${d.getFullYear()}`;
+}

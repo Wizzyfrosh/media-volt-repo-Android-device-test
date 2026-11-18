@@ -32,7 +32,7 @@ pnpm --filter @mediavault/mobile check:store-bundle # proves store build has no 
   Settings > Developer tools (development builds) lets you create folders and files and check they survive a restart.
 - Phase 1c built: background download engine (queue, pause/resume, retries, Wi-Fi only, recovery after restart). See `docs/DOWNLOADS.md`.
   Unit tested with a fake transport. It still needs the on-device checks listed in that file.
-- Next: Phase 1d (Library and file manager). See `docs/ROADMAP.md`.
+- Phase 1d built: the real Library (folders, filters, search, sort, grid/list, multi-select, move, trash and undo). See `docs/LIBRARY.md`.
+- Next: check 1c and 1d on a real phone (see the checklists in `docs/DOWNLOADS.md` and `docs/LIBRARY.md`), then Phase 2 (backend).
 
-Tab screens still show sample data in development builds (`FEATURES.demoData`). They switch to the real
-library in Phase 1d.
+Only the Home screen's list of supported sites still uses sample data, and only in development builds (`FEATURES.demoData`).

@@ -35,7 +35,7 @@ Estimated total: about 5 to 6 months solo, 3 to 4 months with 2 to 3 people. Tre
 
 ### Phase 1: Core app (about 7 weeks)
 
-Status: 1a (foundation), 1b (database and file service) and 1c (download engine, see DOWNLOADS.md) are built and unit tested. 1c still needs the on-device checks listed in DOWNLOADS.md. Next: 1d (Library and file manager).
+Status: 1a (foundation), 1b (database and file service) and 1c (download engine, see DOWNLOADS.md) are built and unit tested. 1c still needs the on-device checks listed in DOWNLOADS.md. 1d (Library and file manager, see LIBRARY.md) is built and tested. Next: on-device checks for 1c and 1d, then Phase 2.
 
 - Navigation shell, theme, onboarding
 - SQLite setup and migrations

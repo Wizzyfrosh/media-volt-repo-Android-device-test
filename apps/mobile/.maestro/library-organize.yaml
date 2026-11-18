@@ -1,0 +1,29 @@
+# Creates a folder and moves a file into it from the Library.
+# Needs a DEVELOPMENT build, because it uses Settings > Developer tools to create test files.
+#   maestro test apps/mobile/.maestro/library-organize.yaml
+# NOT YET RUN: Maestro needs an emulator or phone. Run it before trusting it.
+appId: com.wizzyfrosh.mediavault
+---
+- launchApp:
+    clearState: true
+- tapOn: "Skip"
+- tapOn: "Settings"
+- scrollUntilVisible:
+    element: "Developer tools"
+- tapOn: "Developer tools"
+- tapOn: "Add file"
+- tapOn: "Add file"
+- tapOn: "Go back"
+- tapOn: "Library"
+- assertVisible: "Note 1.txt"
+- tapOn: "New folder"
+- inputText: "Trips"
+- tapOn: "Create"
+- assertVisible: "Trips"
+- longPressOn: "Note 1.txt"
+- assertVisible: "1 selected"
+- tapOn: "Move"
+- tapOn: "Trips"
+- assertNotVisible: "Note 1.txt"
+- tapOn: "Trips"
+- assertVisible: "Note 1.txt"

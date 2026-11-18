@@ -167,7 +167,7 @@ export default function HomeScreen() {
                       {s.name}
                     </Text>
                     <Text variant="caption" tone="secondary">
-                      {s.total} saved
+                      Supported
                     </Text>
                   </Card>
                 ))}

@@ -60,6 +60,8 @@ export class FileService {
   private readonly media?: MediaExportPort;
   private readonly now: () => number;
   private readonly makeId: () => string;
+  private version = 0;
+  private readonly listeners = new Set<() => void>();
 
   constructor(deps: FileServiceDeps) {
     this.repos = deps.repos;
@@ -70,6 +72,27 @@ export class FileService {
     this.makeId = deps.newId ?? (() => newId(this.now()));
   }
 
+  // ---------- change notifications ----------
+
+  /** Lets screens refresh when anything in the library changes. Works with useSyncExternalStore. */
+  subscribe = (listener: () => void): (() => void) => {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  };
+
+  /** Goes up by one after every change to files or folders. */
+  getVersion = (): number => this.version;
+
+  /** For code that changes the database directly (such as test-data tools), so screens reload. */
+  refresh(): void {
+    this.changed();
+  }
+
+  private changed(): void {
+    this.version += 1;
+    for (const l of this.listeners) l();
+  }
+
   // ---------- folders ----------
 
   async createFolder(name: string, parentId: string | null = null): Promise<FolderRecord> {
@@ -78,7 +101,9 @@ export class FileService {
       sanitizeName(name),
       async (n) => (await this.repos.folders.findByName(parentId, n)) !== null,
     );
-    return this.repos.folders.insert({ name: unique, parentId });
+    const folder = await this.repos.folders.insert({ name: unique, parentId });
+    this.changed();
+    return folder;
   }
 
   async renameFolder(id: string, name: string): Promise<FolderRecord> {
@@ -90,6 +115,7 @@ export class FileService {
       async (n) => (await this.repos.folders.findByName(folder.parentId, n, id)) !== null,
     );
     await this.repos.folders.rename(id, unique);
+    this.changed();
     return { ...folder, name: unique };
   }
 
@@ -111,6 +137,7 @@ export class FileService {
     );
     await this.repos.folders.rename(id, unique);
     await this.repos.folders.move(id, newParentId);
+    this.changed();
     return { ...folder, name: unique, parentId: newParentId };
   }
 
@@ -124,6 +151,7 @@ export class FileService {
       this.now(),
     );
     await this.repos.folders.delete(id);
+    this.changed();
   }
 
   // ---------- files ----------
@@ -162,6 +190,7 @@ export class FileService {
         durationSec: input.durationSec ?? null,
       });
       record = await this.attachThumbnail(record);
+      this.changed();
       return record;
     } catch (e) {
       // Do not leave an orphan file behind if the database refused the row.
@@ -192,6 +221,7 @@ export class FileService {
       async (n) => (await this.repos.files.findByName(file.folderId, n, id)) !== null,
     );
     await this.repos.files.update(id, { name: unique });
+    this.changed();
     return { ...file, name: unique };
   }
 
@@ -206,6 +236,7 @@ export class FileService {
       );
       await this.repos.files.update(file.id, { folderId, name: unique });
     }
+    this.changed();
   }
 
   async copyFile(id: string, folderId?: string | null): Promise<FileRecord> {
@@ -234,7 +265,9 @@ export class FileService {
         source: file.source,
         durationSec: file.durationSec,
       });
-      return await this.attachThumbnail(copy);
+      const done = await this.attachThumbnail(copy);
+      this.changed();
+      return done;
     } catch (e) {
       await this.fs.remove(dest).catch(() => undefined);
       throw e;
@@ -244,13 +277,21 @@ export class FileService {
   async toggleFavorite(id: string): Promise<boolean> {
     const file = await this.requireFile(id);
     await this.repos.files.update(id, { isFavorite: !file.isFavorite });
+    this.changed();
     return !file.isFavorite;
+  }
+
+  /** Sets favorite on many files at once. */
+  async setFavorite(ids: readonly string[], value: boolean): Promise<void> {
+    for (const id of ids) await this.repos.files.update(id, { isFavorite: value });
+    this.changed();
   }
 
   // ---------- trash ----------
 
   async trashFiles(ids: readonly string[]): Promise<void> {
     await this.repos.files.setDeletedAt(ids, this.now());
+    this.changed();
   }
 
   /** Brings files back to their folder, or to the top level if that folder is gone. Clashing names get a suffix. */
@@ -266,11 +307,18 @@ export class FileService {
       await this.repos.files.update(file.id, { folderId: target, name: unique });
       await this.repos.files.setDeletedAt([file.id], null);
     }
+    this.changed();
   }
 
   /** Permanently deletes trashed files older than the retention period. Returns how many were removed. */
   async purgeExpiredTrash(): Promise<number> {
     return this.purge(await this.repos.files.listTrashedBefore(this.now() - TRASH_RETENTION_MS));
+  }
+
+  /** Permanently deletes the given files, which must already be in the trash. */
+  async deleteForever(ids: readonly string[]): Promise<number> {
+    const trashed = (await this.repos.files.getByIds(ids)).filter((f) => f.deletedAt !== null);
+    return this.purge(trashed);
   }
 
   /** Permanently deletes everything in the trash. */
@@ -309,6 +357,7 @@ export class FileService {
       if (f.thumbnailPath) await this.fs.remove(f.thumbnailPath).catch(() => undefined);
     }
     await this.repos.files.deleteMany(files.map((f) => f.id));
+    if (files.length > 0) this.changed();
     return files.length;
   }
 

@@ -31,6 +31,7 @@ function RootStack() {
           <Stack.Screen name="scanner" />
           <Stack.Screen name="storage" />
           <Stack.Screen name="debug" />
+          <Stack.Screen name="trash" />
           <Stack.Screen name="player/[fileId]" />
           <Stack.Screen name="viewer/[fileId]" />
           <Stack.Screen name="folder/[folderId]" />

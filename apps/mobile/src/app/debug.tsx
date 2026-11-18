@@ -22,6 +22,7 @@ import {
 import { FEATURES } from '@/config/features';
 import { currentSchemaVersion } from '@/db/migrations';
 import type { FileRecord, FolderRecord } from '@/db/types';
+import { removePerfFiles, seedPerfFiles } from '@/dev/seed';
 import { useServices } from '@/services/ServicesProvider';
 import { categoryColors, spacing, useTheme } from '@/theme';
 import { formatBytes } from '@/utils/format';
@@ -150,6 +151,31 @@ export default function DebugScreen() {
                     folderId,
                   ),
                 )
+              }
+              style={styles.flex}
+            />
+          </View>
+
+          <View style={styles.buttons}>
+            <Button
+              label="Add 5,000 test files"
+              variant="secondary"
+              onPress={() =>
+                run(async () => {
+                  await seedPerfFiles(db, { files }, 5000);
+                  fileService.refresh();
+                })
+              }
+              style={styles.flex}
+            />
+            <Button
+              label="Remove test files"
+              variant="ghost"
+              onPress={() =>
+                run(async () => {
+                  await removePerfFiles({ files });
+                  fileService.refresh();
+                })
               }
               style={styles.flex}
             />
