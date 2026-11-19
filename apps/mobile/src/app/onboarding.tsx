@@ -1,22 +1,23 @@
-import { FolderOpen, Link, ShieldCheck, type LucideIcon } from 'lucide-react-native';
 import { useCallback, useRef, useState } from 'react';
 import {
   FlatList,
+  Image,
   Pressable,
   StyleSheet,
   useWindowDimensions,
   View,
   type FlatListProps,
+  type ImageSourcePropType,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Text } from '@/components/ui';
 import { useAppStore } from '@/stores/app-store';
-import { categoryColors, radius, spacing, useTheme, withAlpha } from '@/theme';
+import { spacing, useTheme } from '@/theme';
 
 interface Slide {
   key: string;
-  icon: LucideIcon;
-  tint: string;
+  image: ImageSourcePropType;
+  imageLabel: string;
   title: string;
   body: string;
 }
@@ -24,22 +25,22 @@ interface Slide {
 const SLIDES: Slide[] = [
   {
     key: 'save',
-    icon: Link,
-    tint: categoryColors.videos,
+    image: require('../../assets/images/onboarding-save.png'),
+    imageLabel: 'Media being saved from a link',
     title: 'Save from a link',
     body: 'Paste a link or share it to MediaVault from any app. Downloads keep going in the background.',
   },
   {
     key: 'organize',
-    icon: FolderOpen,
-    tint: categoryColors.documents,
+    image: require('../../assets/images/onboarding-organize.png'),
+    imageLabel: 'MediaVault organizing files and documents',
     title: 'Everything in one place',
     body: 'Browse files, read documents and scan pages without switching apps.',
   },
   {
     key: 'private',
-    icon: ShieldCheck,
-    tint: categoryColors.audio,
+    image: require('../../assets/images/onboarding-privacy.png'),
+    imageLabel: 'Private files protected inside a secure vault',
     title: 'Private by design',
     body: 'Lock sensitive files in an encrypted vault that stays on your phone.',
   },
@@ -90,11 +91,13 @@ export default function OnboardingScreen() {
         viewabilityConfig={{ viewAreaCoveragePercentThreshold: 60 }}
         renderItem={({ item }) => (
           <View style={[styles.slide, { width }]}>
-            <View style={[styles.hero, { backgroundColor: withAlpha(item.tint, 0.16) }]}>
-              <View style={[styles.heroInner, { backgroundColor: withAlpha(item.tint, 0.22) }]}>
-                <item.icon color={item.tint} size={56} strokeWidth={1.8} />
-              </View>
-            </View>
+            <Image
+              source={item.image}
+              style={styles.illustration}
+              resizeMode="contain"
+              accessible
+              accessibilityLabel={item.imageLabel}
+            />
             <Text variant="display" style={styles.center}>
               {item.title}
             </Text>
@@ -141,20 +144,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xxxl,
     gap: spacing.lg,
   },
-  hero: {
-    width: 220,
-    height: 220,
-    borderRadius: 64,
-    alignItems: 'center',
-    justifyContent: 'center',
+  illustration: {
+    width: 280,
+    height: 280,
+    maxWidth: '100%',
     marginBottom: spacing.xxl,
-  },
-  heroInner: {
-    width: 140,
-    height: 140,
-    borderRadius: radius.xl,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   center: { textAlign: 'center' },
   footer: { paddingHorizontal: spacing.xl, gap: spacing.xl },
